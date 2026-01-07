@@ -171,21 +171,43 @@ pub fn set_deadline(parts: &Vec<&str>, tasks: &mut Vec<Task>) {
     println!("Date changed");
 }
 
-pub fn genuine_match(parts: Vec<&str>, tasks: &mut Vec<Task>) {
+pub fn genuine_match(parts: Vec<&str>, tasks: &mut Vec<Task>) -> bool {
     match parts.get(0) {
-        Some(&"add") => add_task(&parts, tasks),
-        Some(&"list") => list_tasks(&tasks),
-        Some(&"remove") => remove_task(&parts, tasks),
-        Some(&"do") => done_task(&parts, tasks, true),
-        Some(&"undo") => done_task(&parts, tasks, false),
-        Some(&"deadline") => set_deadline(&parts, tasks),
-        Some(&"help") => println!("{}", HELP),
+        Some(&"add") => {
+            add_task(&parts, tasks);
+            return false;
+        }
+        Some(&"list") => {
+            list_tasks(&tasks);
+            return false;
+        }
+        Some(&"remove") => {
+            remove_task(&parts, tasks);
+            return false;
+        }
+        Some(&"do") => {
+            done_task(&parts, tasks, true);
+            return false;
+        }
+        Some(&"undo") => {
+            done_task(&parts, tasks, false);
+            return false;
+        }
+        Some(&"deadline") => {
+            set_deadline(&parts, tasks);
+            return false;
+        }
+        Some(&"help") => {
+            println!("{}", HELP);
+            return false;
+        }
         Some(&"exit") => {
             println!("okay, killing myself(((");
-            return;
+            return true;
         }
         _ => {
             println!("no valid command provided");
+            return false;
         }
     }
 }

@@ -18,7 +18,9 @@ fn main() {
             }
             let input = input.trim();
             let parts: Vec<&str> = input.split_whitespace().collect();
-            genuine_match(parts, &mut tasks);
+            if genuine_match(parts, &mut tasks) {
+                break;
+            };
         }
     }
 }
