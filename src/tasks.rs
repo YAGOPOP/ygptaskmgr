@@ -3,6 +3,7 @@ use directories::ProjectDirs;
 use serde::{Deserialize, Serialize};
 use std::fs;
 use std::path::PathBuf;
+use owo_colors::OwoColorize;
 
 pub const HELP: &str = include_str!(".././assets/help.txt");
 
@@ -107,7 +108,7 @@ pub fn list_tasks(tasks: &Vec<Task>) {
                 created_local.format("%Y-%m-%d %H:%M"),
                 deadline_local
                     .map(|d| d.format("%Y-%m-%d %H:%M").to_string())
-                    .unwrap_or_else(|| "-".into())
+                    .unwrap_or_else(|| "-".into()).underline()
             );
         }
     }

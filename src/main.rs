@@ -1,7 +1,7 @@
 use std::io;
 mod tasks;
 use std::env;
-use tasks::*;
+use tasks::{HELP, Task, genuine_match, handle_cli, load_tasks};
 
 fn main() {
     let mut tasks: Vec<Task> = load_tasks();
