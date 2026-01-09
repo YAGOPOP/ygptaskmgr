@@ -104,7 +104,7 @@ fn get_data_dir() -> Option<PathBuf> {
     }
 }
 
-pub fn save_tasks(tasks: &[Task]) {
+fn save_tasks(tasks: &[Task]) {
     let json: String = serde_json::to_string_pretty(tasks).expect("Serialize failed");
 
     let data_dir: PathBuf = match get_data_dir() {
