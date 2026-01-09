@@ -1,26 +1,22 @@
-use std::io;
 mod tasks;
-use std::env;
-use tasks::{HELP, Task, genuine_match, handle_cli, load_tasks};
+use clap::Parser;
+use tasks::{Cli, Task, handle_command, interactive_mode, load_tasks};
 
 fn main() {
     let mut tasks: Vec<Task> = load_tasks();
-    let args: Vec<String> = env::args().collect();
-    if args.len() > 1 {
-        handle_cli(args, &mut tasks)
-    } else {
-        println!("{}", HELP);
-        loop {
-            let mut input = String::new();
-            if io::stdin().read_line(&mut input).is_err() {
-                println!("INVALID!!!!");
-                continue;
+
+    let cli = Cli::parse();
+
+    match cli.command {
+        Some(cmd) => {
+            if handle_command(cmd, &mut tasks) {
+                return;
             }
-            let input = input.trim();
-            let parts: Vec<&str> = input.split_whitespace().collect();
-            if genuine_match(parts, &mut tasks) {
-                break;
-            };
+        }
+        None => {
+            if interactive_mode(&mut tasks) {
+                return;
+            }
         }
     }
 }

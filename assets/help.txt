@@ -1,9 +1,0 @@
-Task manager
-Available commands:
-    help
-    add <text>
-    list
-    remove <number in the list>
-    do <number in the list>
-    undo <number in the list>
-    deadline <number in the list> <YYYY-MM-DD> <HH:MM>
