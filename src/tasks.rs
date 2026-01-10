@@ -251,9 +251,9 @@ fn smart_list_tasks(status: StatusFilter, sort: SortBy, tasks: &[Task]) {
             i + 1,
             if task.done { "x" } else { " " },
             task.objective,
-            created_local.format("%Y-%m-%d %H:%M"),
+            created_local.format("%d.%m.%Y %H:%M"),
             deadline_local
-                .map(|d| d.format("%Y-%m-%d %H:%M").to_string())
+                .map(|d| d.format("%d.%m.%Y %H:%M").to_string())
                 .unwrap_or_else(|| "-".into())
                 .underline()
         );
@@ -263,7 +263,7 @@ fn smart_list_tasks(status: StatusFilter, sort: SortBy, tasks: &[Task]) {
 fn set_deadline(index: usize, date: String, time: String, tasks: &mut Vec<Task>) {
     let string_date: String = format!("{} {}", date, time);
 
-    let naive = match NaiveDateTime::parse_from_str(&string_date, "%Y-%m-%d %H:%M") {
+    let naive = match NaiveDateTime::parse_from_str(&string_date, "%d.%m.%Y %H:%M") {
         Ok(v) => v,
         Err(e) => {
             eprintln!("Error: {}", e);
