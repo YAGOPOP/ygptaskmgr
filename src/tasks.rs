@@ -14,7 +14,7 @@ pub struct Cli {
 }
 
 #[derive(ValueEnum, Clone)]
-pub enum StatusFilter {
+enum StatusFilter {
     Done,
     Undone,
     All,
@@ -27,6 +27,11 @@ pub enum SortBy {
     Deadline,
 }
 
+struct ListFilter {
+    status: StatusFilter,
+    overdue: bool,
+}
+
 #[derive(Subcommand)]
 pub enum Commands {
     #[command(about = "Add a new task")]
@@ -34,8 +39,17 @@ pub enum Commands {
 
     #[command(about = "List tasks")]
     List {
-        #[arg(long, value_enum, default_value = "all")]
-        status: StatusFilter,
+        #[arg(long, conflicts_with_all = ["undone", "all"], help = "Show only completed tasks")]
+        done: bool,
+
+        #[arg(long, conflicts_with_all = ["done", "all"], help = "Show only incomplete tasks")]
+        undone: bool,
+
+        #[arg(long, conflicts_with_all = ["done", "undone"], help = "Show all tasks (default)")]
+        all: bool,
+
+        #[arg(long, help = "Show only overdue")]
+        overdue: bool,
 
         #[arg(long, value_enum, default_value = "no-sort")]
         sort: SortBy,
@@ -126,9 +140,25 @@ pub fn handle_command(cmd: Commands, tasks: &mut Vec<Task>) -> bool {
             add_task_from_string(text.join(" "), tasks);
             return false;
         }
-        Commands::List { status, sort } => {
-            smart_list_tasks(status, sort, tasks);
-            return false;
+        Commands::List {
+            done,
+            undone,
+            all: _,
+            sort,
+            overdue,
+        } => {
+            let status = if done {
+                StatusFilter::Done
+            } else if undone {
+                StatusFilter::Undone
+            } else {
+                StatusFilter::All
+            };
+
+            let filter = ListFilter { status, overdue };
+
+            smart_list_tasks(filter, sort, tasks);
+            false
         }
         Commands::Remove { index } => {
             remove_task_by_index(index, tasks);
@@ -224,22 +254,29 @@ fn set_status(num: usize, state: bool, tasks: &mut Vec<Task>) {
     }
 }
 
-fn smart_list_tasks(status: StatusFilter, sort: SortBy, tasks: &[Task]) {
+fn smart_list_tasks(filter: ListFilter, sort: SortBy, tasks: &[Task]) {
     let mut items: Vec<(usize, &Task)> = tasks.iter().enumerate().collect();
 
-    // фильтрация
-    match status {
-    StatusFilter::Done => items.retain(|(_, t)| t.done),
-    StatusFilter::Undone => items.retain(|(_, t)| !t.done),
-    StatusFilter::All => {}
-}
+    match filter.status {
+        StatusFilter::Done => items.retain(|(_, t)| t.done),
+        StatusFilter::Undone => items.retain(|(_, t)| !t.done),
+        StatusFilter::All => {}
+    }
+
+    if filter.overdue {
+        let now = Utc::now();
+        items.retain(|(_, t)| match t.deadline {
+            Some(d) => d < now,
+            None => false,
+        });
+    }
 
     // сортировка
     match sort {
-    SortBy::Created => items.sort_by_key(|(_, t)| t.created_at),
-    SortBy::Deadline => items.sort_by_key(|(_, t)| t.deadline),
-    SortBy::NoSort => {}
-}
+        SortBy::Created => items.sort_by_key(|(_, t)| t.created_at),
+        SortBy::Deadline => items.sort_by_key(|(_, t)| t.deadline),
+        SortBy::NoSort => {}
+    }
 
     // вывод
     for (i, task) in items {
@@ -261,24 +298,29 @@ fn smart_list_tasks(status: StatusFilter, sort: SortBy, tasks: &[Task]) {
 }
 
 fn set_deadline(index: usize, date: String, time: String, tasks: &mut Vec<Task>) {
-    let string_date: String = format!("{} {}", date, time);
+    if index > tasks.len() || index == 0 {
+        eprintln!("Invalid index");
+        return;
+    } else {
+        let string_date: String = format!("{} {}", date, time);
 
-    let naive = match NaiveDateTime::parse_from_str(&string_date, "%d.%m.%Y %H:%M") {
-        Ok(v) => v,
-        Err(e) => {
-            eprintln!("Error: {}", e);
-            return;
-        }
-    };
-    let local_dt = match Local.from_local_datetime(&naive).single() {
-        Some(v) => v,
-        None => {
-            eprintln!("something went wrong during parsing local_dt");
-            return;
-        }
-    };
-    let utc_dt = local_dt.with_timezone(&Utc);
-    tasks[index - 1].deadline = Some(utc_dt);
-    save_tasks(tasks);
-    println!("Date changed");
+        let naive = match NaiveDateTime::parse_from_str(&string_date, "%d.%m.%Y %H:%M") {
+            Ok(v) => v,
+            Err(e) => {
+                eprintln!("Error: {}", e);
+                return;
+            }
+        };
+        let local_dt = match Local.from_local_datetime(&naive).single() {
+            Some(v) => v,
+            None => {
+                eprintln!("something went wrong during parsing local_dt");
+                return;
+            }
+        };
+        let utc_dt = local_dt.with_timezone(&Utc);
+        tasks[index - 1].deadline = Some(utc_dt);
+        save_tasks(tasks);
+        println!("Date changed");
+    }
 }
