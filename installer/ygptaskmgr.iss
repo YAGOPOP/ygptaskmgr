@@ -8,6 +8,10 @@ Compression=lzma
 SolidCompression=yes
 ChangesEnvironment=yes
 
+[Tasks]
+Name: removedata; Description: "Удалить данные программы (tasks.json)"; \
+    Flags: unchecked
+
 [Files]
 Source: "C:\Users\ttata\rustesting\ygptaskmgr\target\release\ygptaskmgr.exe"; \
     DestDir: "{app}"; Flags: ignoreversion
@@ -67,7 +71,20 @@ begin
 end;
 
 procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
+var
+  DataDir: string;
 begin
   if CurUninstallStep = usUninstall then
+  begin
+    { 1. Чистим PATH }
     RemovePathEntry();
+
+    { 2. Опционально удаляем данные }
+    if IsTaskSelected('removedata') then
+    begin
+      DataDir := ExpandConstant('{userappdata}\yagopop\ygptaskmgr');
+      DelTree(DataDir, True, True, True);
+    end;
+  end;
 end;
+
