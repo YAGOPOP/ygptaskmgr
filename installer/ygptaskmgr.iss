@@ -14,7 +14,7 @@ Name: removedata; Description: "Удалить данные программы (
     Flags: unchecked
 
 [Files]
-Source: "C:\Users\ttata\rustesting\ygptaskmgr\target\release\ygptaskmgr.exe"; \
+Source: "..\target\release\ygptaskmgr.exe"; \
     DestDir: "{app}"; Flags: ignoreversion
 
 [Registry]
