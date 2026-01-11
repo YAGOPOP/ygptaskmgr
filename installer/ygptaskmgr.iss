@@ -1,6 +1,6 @@
 [Setup]
 AppName=ygptaskmgr
-AppVersion=0.1.1
+AppVersion=0.2.1
 DefaultDirName={pf}\ygptaskmgr
 DisableProgramGroupPage=yes
 OutputBaseFilename=ygptaskmgr-setup
