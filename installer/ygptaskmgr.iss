@@ -7,6 +7,7 @@ OutputBaseFilename=ygptaskmgr-setup
 Compression=lzma
 SolidCompression=yes
 ChangesEnvironment=yes
+OutputDir=output
 
 [Tasks]
 Name: removedata; Description: "Удалить данные программы (tasks.json)"; \
