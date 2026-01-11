@@ -7,13 +7,14 @@ OutputBaseFilename=ygptaskmgr-setup
 Compression=lzma
 SolidCompression=yes
 ChangesEnvironment=yes
+OutputDir=output
 
 [Tasks]
 Name: removedata; Description: "Удалить данные программы (tasks.json)"; \
     Flags: unchecked
 
 [Files]
-Source: "C:\Users\ttata\rustesting\ygptaskmgr\target\release\ygptaskmgr.exe"; \
+Source: "..\target\release\ygptaskmgr.exe"; \
     DestDir: "{app}"; Flags: ignoreversion
 
 [Registry]
