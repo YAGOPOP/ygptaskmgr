@@ -1,9 +1,13 @@
+#define MyVersion "0.2.1"
+#define MyArch "x86_64"
+
+
 [Setup]
 AppName=ygptaskmgr
-AppVersion=0.2.1
+AppVersion={#MyVersion}
 DefaultDirName={autopf}\ygptaskmgr
 DisableProgramGroupPage=yes
-OutputBaseFilename=ygptaskmgr-setup
+OutputBaseFilename=ygptaskmgr-{#MyVersion}-setup-windows-{#MyArch}
 Compression=lzma
 SolidCompression=yes
 ChangesEnvironment=yes
